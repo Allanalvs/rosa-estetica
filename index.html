@@ -64,8 +64,6 @@
 <body>
   <header>
     <img src="Logo2.png" alt="Logo Rosa Estética" style="max-width: 100%; height: auto; margin-bottom: 1rem;" />
-  
-  
   </header>
 
   <section>
@@ -162,6 +160,8 @@
     }
 
     document.getElementById('form-agendamento').addEventListener('submit', function(e) {
+      e.preventDefault(); // Impede o envio imediato do formulário
+
       const nome = document.getElementById('nome').value.trim();
       const telefone = document.getElementById('telefone').value.trim();
       const procedimento = document.querySelector('[name="procedimento"]').value;
@@ -171,15 +171,12 @@
 
       if (!validarNome() || !data || !horario) {
         alert('Preencha todos os campos corretamente.');
-        e.preventDefault();
         return;
       }
 
-      
       salvarHorarioOcupado(data, horario);
       atualizarHorarios();
 
-      
       const numeroWhatsapp = '5521979480852';
       const mensagem = `🌸 *Novo Agendamento - Rosa Estética* 🌸
 
@@ -194,10 +191,16 @@
 ✨ Aguardando confirmação.`;
 
       const urlWhatsapp = `https://wa.me/${numeroWhatsapp}?text=${encodeURIComponent(mensagem)}`;
-      setTimeout(() => window.open(urlWhatsapp, '_blank'), 500);
+
+      // Abrir WhatsApp
+      window.open(urlWhatsapp, '_blank');
+
+      // Enviar formulário após 1 segundo
+      setTimeout(() => {
+        e.target.submit(); // envia para Formspree
+      }, 1000);
 
       alert(`Agendamento enviado com sucesso!`);
-    
     });
   </script>
 </body>
