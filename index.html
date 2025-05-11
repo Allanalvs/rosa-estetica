@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rosa Estética</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #ffe4f0;
+      color: #333;
+    }
+    header {
+      background-color: #ffb6c1;
+      padding: 2rem;
+      text-align: center;
+      color: white;
+    }
+    h1 {
+      margin: 0;
+      font-size: 2.5rem;
+    }
+    .slogan {
+      font-style: italic;
+      font-size: 1.2rem;
+    }
+    section {
+      padding: 2rem;
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #ffb6c1;
+      margin-top: 2rem;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+    }
+    input, textarea, select, button {
+      width: 100%;
+      padding: 0.8rem;
+      margin-top: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    button {
+      background-color: #ff69b4;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 1.5rem;
+    }
+    button:hover {
+      background-color: #ff1493;
+    }
+    select option:disabled {
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="Logo2.png" alt="Logo Rosa Estética" style="max-width: 100%; height: auto; margin-bottom: 1rem;" />
+  
+  
+  </header>
+
+  <section>
+    <h2>Agende seu procedimento</h2>
+    <form id="form-agendamento" action="https://formspree.io/f/xanobroo" method="POST">
+      <label>Nome completo:</label>
+      <input type="text" name="nome" id="nome" required placeholder="Ex: Maria da Silva" />
+
+      <label>Telefone/WhatsApp:</label>
+      <input type="tel" name="telefone" id="telefone" required
+             placeholder="(21) 99999-1234"
+             maxlength="15"
+             oninput="formatarTelefone(this)" />
+
+      <label>Procedimento desejado:</label>
+      <select name="procedimento" required>
+        <option value="">Selecione</option>
+        <option value="Depilação axila">Depilação axila</option>
+        <option value="Depilação virilha completa">Depilação virilha completa</option>
+        <option value="Depilação buço">Depilação buço</option>
+        <option value="Depilação braço">Depilação braço</option>
+        <option value="Depilação meia perna">Depilação meia perna</option>
+        <option value="Depilação perna completa">Depilação perna completa</option>
+        <option value="Depilação virilha+anus">Depilação virilha + ânus</option>
+      </select>
+
+      <label>Data desejada:</label>
+      <input type="date" name="data" id="data" required onchange="atualizarHorarios()" />
+
+      <label>Horário desejado:</label>
+      <select name="horario" id="horario" required>
+        <option value="">Selecione uma data primeiro</option>
+      </select>
+
+      <label>Mensagem adicional:</label>
+      <textarea name="mensagem"></textarea>
+
+      <button type="submit">Agendar</button>
+    </form>
+  </section>
+
+  <script>
+    function validarNome() {
+      const nome = document.getElementById('nome').value.trim();
+      return nome.split(' ').length >= 2;
+    }
+
+    function formatarTelefone(campo) {
+      let valor = campo.value.replace(/\D/g, '');
+      if (valor.length > 11) valor = valor.slice(0, 11);
+      campo.value = valor.length <= 10
+        ? valor.replace(/^(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3')
+        : valor.replace(/^(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
+    }
+
+    function gerarHorarios() {
+      const horarios = [];
+      for (let h = 8; h < 16; h++) {
+        horarios.push(pad(h) + ':00');
+        horarios.push(pad(h) + ':30');
+      }
+      return horarios;
+    }
+
+    function pad(n) {
+      return n < 10 ? '0' + n : n;
+    }
+
+    function getHorariosOcupados() {
+      return JSON.parse(localStorage.getItem('horariosOcupados')) || {};
+    }
+
+    function salvarHorarioOcupado(data, horario) {
+      const ocupados = getHorariosOcupados();
+      if (!ocupados[data]) ocupados[data] = [];
+      if (!ocupados[data].includes(horario)) ocupados[data].push(horario);
+      localStorage.setItem('horariosOcupados', JSON.stringify(ocupados));
+    }
+
+    function atualizarHorarios() {
+      const select = document.getElementById('horario');
+      const dataSelecionada = document.getElementById('data').value;
+      const ocupados = getHorariosOcupados()[dataSelecionada] || [];
+      const horarios = gerarHorarios();
+
+      select.innerHTML = '<option value="">Selecione</option>';
+      horarios.forEach(hora => {
+        const opt = document.createElement('option');
+        opt.value = hora;
+        opt.textContent = hora + (ocupados.includes(hora) ? ' (indisponível)' : '');
+        opt.disabled = ocupados.includes(hora);
+        select.appendChild(opt);
+      });
+    }
+
+    document.getElementById('form-agendamento').addEventListener('submit', function(e) {
+      const nome = document.getElementById('nome').value.trim();
+      const telefone = document.getElementById('telefone').value.trim();
+      const procedimento = document.querySelector('[name="procedimento"]').value;
+      const data = document.getElementById('data').value;
+      const horario = document.getElementById('horario').value;
+      const mensagemExtra = document.querySelector('[name="mensagem"]').value.trim() || 'Nenhuma';
+
+      if (!validarNome() || !data || !horario) {
+        alert('Preencha todos os campos corretamente.');
+        e.preventDefault();
+        return;
+      }
+
+      
+      salvarHorarioOcupado(data, horario);
+      atualizarHorarios();
+
+      
+      const numeroWhatsapp = '5521979480852';
+      const mensagem = `🌸 *Novo Agendamento - Rosa Estética* 🌸
+
+👤 *Nome:* ${nome}
+📞 *Telefone:* ${telefone}
+💆 *Procedimento:* ${procedimento}
+📅 *Data:* ${data}
+⏰ *Horário:* ${horario}
+
+💬 *Mensagem adicional:* ${mensagemExtra}
+
+✨ Aguardando confirmação.`;
+
+      const urlWhatsapp = `https://wa.me/${numeroWhatsapp}?text=${encodeURIComponent(mensagem)}`;
+      setTimeout(() => window.open(urlWhatsapp, '_blank'), 500);
+
+      alert(`Agendamento enviado com sucesso!`);
+    
+    });
+  </script>
+</body>
+</html>
