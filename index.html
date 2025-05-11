@@ -3,41 +3,51 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rosa Estética</title>
+  <title>Rosa Stúdio</title>
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background-color: #ffe4f0;
+      background: url('fundo.jpeg') no-repeat center center fixed;
+      background-size: cover;
       color: #333;
     }
+
     header {
-      background-color: #ffb6c1;
+      background: transparent;
       padding: 2rem;
       text-align: center;
       color: white;
     }
+
     h1 {
       margin: 0;
       font-size: 2.5rem;
+      color: #fff;
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
     }
+
     .slogan {
       font-style: italic;
       font-size: 1.2rem;
+      color: #f80582;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
     }
+
     section {
       padding: 2rem;
       max-width: 600px;
-      margin: auto;
-      background: white;
+      margin: 2rem auto;
+      background: rgba(255, 255, 255, 0.95);
       border-radius: 12px;
       box-shadow: 0 0 20px #ffb6c1;
-      margin-top: 2rem;
     }
+
     label {
       display: block;
       margin-top: 1rem;
     }
+
     input, textarea, select, button {
       width: 100%;
       padding: 0.8rem;
@@ -45,6 +55,7 @@
       border: 1px solid #ddd;
       border-radius: 8px;
     }
+
     button {
       background-color: #ff69b4;
       color: white;
@@ -53,9 +64,11 @@
       cursor: pointer;
       margin-top: 1.5rem;
     }
+
     button:hover {
       background-color: #ff1493;
     }
+
     select option:disabled {
       color: #aaa;
     }
@@ -63,7 +76,11 @@
 </head>
 <body>
   <header>
-    <img src="Logo2.png" alt="Logo Rosa Estética" style="max-width: 100%; height: auto; margin-bottom: 1rem;" />
+    <img src="Logo2.png" alt="Logo Rosa Estética"
+         style="display: block; margin: 0 auto 1rem auto; max-width: 100%; height: auto;
+                filter: drop-shadow(0 0 10px rgba(255, 105, 180, 0.5));" />
+    <h1><i>Rosa Stúdio</i></h1>
+    <p class="slogan">Beleza que floresce em você</p>
   </header>
 
   <section>
@@ -84,10 +101,17 @@
         <option value="Depilação axila">Depilação axila</option>
         <option value="Depilação virilha completa">Depilação virilha completa</option>
         <option value="Depilação buço">Depilação buço</option>
-        <option value="Depilação braço">Depilação braço</option>
+        <option value="Depilação braço">Depilação meio braço</option>
+        <option value="Depilação braço">Depilação braço completo</option>
         <option value="Depilação meia perna">Depilação meia perna</option>
         <option value="Depilação perna completa">Depilação perna completa</option>
         <option value="Depilação virilha+anus">Depilação virilha + ânus</option>
+        <option value="Depilação nariz">Depilação nariz</option>
+        <option value="Depilação queixo">Depilação queixo</option>
+        <option value="Depilação rosto todo">Depilação rosto todo</option>
+        <option value="Depilação orelha">Depilação orelha</option>
+        <option value="Depilação abdomen">Depilação abdômen</option>
+        <option value="Depilação costas">Depilação costas</option>
       </select>
 
       <label>Data desejada:</label>
@@ -121,7 +145,7 @@
 
     function gerarHorarios() {
       const horarios = [];
-      for (let h = 8; h < 16; h++) {
+      for (let h = 18; h < 21; h++) {
         horarios.push(pad(h) + ':00');
         horarios.push(pad(h) + ':30');
       }
@@ -160,7 +184,7 @@
     }
 
     document.getElementById('form-agendamento').addEventListener('submit', function(e) {
-      e.preventDefault(); // Impede o envio imediato do formulário
+      e.preventDefault();
 
       const nome = document.getElementById('nome').value.trim();
       const telefone = document.getElementById('telefone').value.trim();
@@ -178,7 +202,7 @@
       atualizarHorarios();
 
       const numeroWhatsapp = '5521979480852';
-      const mensagem = `🌸 *Novo Agendamento - Rosa Estética* 🌸
+      const mensagem = `🌸 *Novo Agendamento - Rosa Stúdio* 🌸
 
 👤 *Nome:* ${nome}
 📞 *Telefone:* ${telefone}
@@ -192,12 +216,10 @@
 
       const urlWhatsapp = `https://wa.me/${numeroWhatsapp}?text=${encodeURIComponent(mensagem)}`;
 
-      // Abrir WhatsApp
       window.open(urlWhatsapp, '_blank');
 
-      // Enviar formulário após 1 segundo
       setTimeout(() => {
-        e.target.submit(); // envia para Formspree
+        e.target.submit(); // Envia para Formspree
       }, 1000);
 
       alert(`Agendamento enviado com sucesso!`);
