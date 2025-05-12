@@ -23,7 +23,7 @@
     h1 {
       margin: 0;
       font-size: 2.5rem;
-      color: #fff;
+      color: #ffffff;
       text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
     }
 
@@ -101,8 +101,8 @@
         <option value="Depilação axila">Depilação axila</option>
         <option value="Depilação virilha completa">Depilação virilha completa</option>
         <option value="Depilação buço">Depilação buço</option>
-        <option value="Depilação braço">Depilação meio braço</option>
-        <option value="Depilação braço">Depilação braço completo</option>
+        <option value="Depilação meio braço">Depilação meio braço</option>
+        <option value="Depilação braço completo">Depilação braço completo</option>
         <option value="Depilação meia perna">Depilação meia perna</option>
         <option value="Depilação perna completa">Depilação perna completa</option>
         <option value="Depilação virilha+anus">Depilação virilha + ânus</option>
@@ -115,7 +115,7 @@
       </select>
 
       <label>Data desejada:</label>
-      <input type="date" name="data" id="data" required onchange="atualizarHorarios()" />
+      <input type="date" name="data" id="data" required onchange="validarDiaUtil()" min="" />
 
       <label>Horário desejado:</label>
       <select name="horario" id="horario" required>
@@ -143,12 +143,31 @@
         : valor.replace(/^(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
     }
 
-    function gerarHorarios() {
+    function gerarHorarios(dataSelecionada) {
+      if (!dataSelecionada) return [];
+
+      const partes = dataSelecionada.split("-");
+      const dataJS = new Date(partes[0], partes[1] - 1, partes[2]);
+      const dia = dataJS.getDay();
       const horarios = [];
-      for (let h = 18; h < 21; h++) {
-        horarios.push(pad(h) + ':00');
-        horarios.push(pad(h) + ':30');
+
+      let inicio, fim;
+
+      if (dia === 6) { // Sábado
+        inicio = 9;
+        fim = 19;
+      } else if (dia >= 1 && dia <= 5) { // Segunda a sexta
+        inicio = 18;
+        fim = 20.5;
+      } else {
+        return []; // Domingo ou inválido
       }
+
+      for (let h = inicio; h < fim; h++) {
+        horarios.push(pad(Math.floor(h)) + ':00');
+        horarios.push(pad(Math.floor(h)) + ':30');
+      }
+
       return horarios;
     }
 
@@ -171,7 +190,7 @@
       const select = document.getElementById('horario');
       const dataSelecionada = document.getElementById('data').value;
       const ocupados = getHorariosOcupados()[dataSelecionada] || [];
-      const horarios = gerarHorarios();
+      const horarios = gerarHorarios(dataSelecionada);
 
       select.innerHTML = '<option value="">Selecione</option>';
       horarios.forEach(hora => {
@@ -183,7 +202,40 @@
       });
     }
 
-    document.getElementById('form-agendamento').addEventListener('submit', function(e) {
+    function validarDiaUtil() {
+      const dataInput = document.getElementById('data');
+      const dataSelecionada = dataInput.value;
+      if (!dataSelecionada) return;
+
+      const partes = dataSelecionada.split("-");
+      const dataJS = new Date(partes[0], partes[1] - 1, partes[2]);
+      const dia = dataJS.getDay();
+
+      if (dia === 0) {
+        alert('Domingos não estão disponíveis para agendamento.');
+        dataInput.value = '';
+        atualizarHorarios();
+        return;
+      }
+
+      const horarios = gerarHorarios(dataSelecionada);
+
+      if (horarios.length === 0) {
+        alert('Não há horários disponíveis para esse dia.');
+        dataInput.value = '';
+        atualizarHorarios();
+        return;
+      }
+
+      atualizarHorarios();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const hoje = new Date().toISOString().split('T')[0];
+      document.getElementById('data').setAttribute('min', hoje);
+    });
+
+    document.getElementById('form-agendamento').addEventListener('submit', function (e) {
       e.preventDefault();
 
       const nome = document.getElementById('nome').value.trim();
@@ -215,11 +267,10 @@
 ✨ Aguardando confirmação.`;
 
       const urlWhatsapp = `https://wa.me/${numeroWhatsapp}?text=${encodeURIComponent(mensagem)}`;
-
       window.open(urlWhatsapp, '_blank');
 
       setTimeout(() => {
-        e.target.submit(); // Envia para Formspree
+        e.target.submit();
       }, 1000);
 
       alert(`Agendamento enviado com sucesso!`);
